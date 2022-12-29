@@ -1,0 +1,138 @@
+---
+title: "R Notebook"
+output:
+  html_document:
+    df_print: paged
+  html_notebook: default
+  pdf_document: default
+---
+
+```{r, include=FALSE,echo=FALSE}
+library("scales")
+library("haven")
+library("tidyverse")
+library("stargazer")
+library("ggpubr")
+library("readxl")
+library("GGally")
+knitr::opts_chunk$set(comment = NA, message=FALSE, warning = FALSE, fig.align = "center")
+options(width = 90)
+data <- read_xlsx("test1.xlsx")
+data <- mutate(data, Index = Weight/(Height/100)**2)
+data <- mutate(data, PatientID = factor(PatientID))
+data <- mutate(data, Type = factor(Type))
+data <- mutate(data, TimeStop = 100*Bstop/Time)
+data <- group_by(data, PatientID) %>% mutate(Ratio = sum(Bstop)/n()) %>% ungroup()
+data1 <- data %>% filter(Type=="Д")
+data2 <- data %>% filter(Type=="К")
+data3 <- data %>% filter(Type=="Л")
+data4 <- data %>% filter(Type=="А")
+```
+
+```{r, echo=FALSE}
+data %>%
+  group_by(Type) %>%
+  summarize(n = n()) %>%
+  ungroup()
+```
+```{r, echo=FALSE}
+data %>%
+  group_by(PatientID) %>%
+  summarize(n = n()) %>%
+  summarize(min_n = min(n),
+  mean_n = mean(n),
+  max_n = max(n)) %>% ungroup()
+```
+
+```{r,echo=FALSE}
+ggpairs(data.frame(data[,c("Bstop", "TimeStop","Time", "Ratio", "Spins", "Index", "Type", "Hand_Leg", "Right_Left")]))
+```
+```{r,echo=FALSE}
+stargazer(data.frame(data), type = "text", title = "General Summary")
+stargazer(data.frame(data1), type = "text", title = "Type Д Summary")
+stargazer(data.frame(data2), type = "text", title = "Type К Summary")
+stargazer(data.frame(data3), type = "text", title = "Type Л Summary")
+stargazer(data.frame(data4), type = "text", title = "Type А Summary")
+```
+```{r,echo=FALSE}
+f1 <- ggplot(data, aes(x = Type,
+  fill=factor(Distance))) + labs(x = "Type", y="Percentage") +
+  geom_bar(position = "fill", stat = "count") + scale_y_continuous(labels = percent)
+f2 <- ggplot(data, aes(x = Type,
+  fill=factor(Spins))) + labs(x = "Type", y="Percentage") +
+  geom_bar(position = "fill", stat = "count") + scale_y_continuous(labels = percent)
+ggarrange(f1,f2)
+
+f3 <- ggplot(data, aes(x = Type,
+  fill=factor(Male))) + labs(x = "Type", y="Percentage") +
+  geom_bar(position = "fill", stat = "count") + scale_y_continuous(labels = percent)
+f4 <- ggplot(data, aes(x = Type,
+  fill=factor(Bstop))) + labs(x = "Type", y="Percentage") +
+  geom_bar(position = "fill", stat = "count") + scale_y_continuous(labels = percent)
+ggarrange(f3,f4)
+
+f5 <- ggplot(data, aes(x = Type,
+  fill=factor(LHandRL))) + labs(x = "Type", y="Percentage") +
+  geom_bar(position = "fill", stat = "count") + scale_y_continuous(labels = percent)
+f6 <- ggplot(data, aes(x = Type,
+  fill=factor(Spins))) + labs(x = "Type", y="Percentage") +
+  geom_bar(position = "fill", stat = "count") + scale_y_continuous(labels = percent)
+ggarrange(f5,f6)
+
+f7 <- ggplot(data, aes(x = Hand_Leg,
+  fill=factor(Bstop))) + labs(x = "Hand/Leg", y="Percentage") +
+  geom_bar(position = "fill", stat = "count") + scale_y_continuous(labels = percent)
+f8 <- ggplot(data, aes(x = Right_Left,
+  fill=factor(Bstop))) + labs(x = "Right/Left", y="Percentage") +
+  geom_bar(position = "fill", stat = "count") + scale_y_continuous(labels = percent)
+ggarrange(f7,f8)
+```
+```{r,echo=FALSE}
+ggplot(data, aes(x=Age)) +
+          geom_density(alpha=.5)
+ggplot(data, aes(x=Index)) +
+          geom_density(alpha=.5)
+ggplot(data, aes(x=Time)) +
+          geom_density(alpha=.5)
+ggplot(data, aes(x=LegWidth)) +
+          geom_density(alpha=.5)
+ggplot(data, aes(x=HandWidth)) +
+          geom_density(alpha=.5)
+ggplot(data, aes(x=PreassureS)) +
+          geom_density(alpha=.5)
+ggplot(data, aes(x=PressureD)) +
+          geom_density(alpha=.5)
+```
+
+```{r,echo=FALSE}
+ggplot(data, aes(x=Age,
+          color=factor(Type))) +
+          geom_density(alpha=.5)
+ggplot(data, aes(x=Weight,
+          color=factor(Type))) +
+          geom_density(alpha=.5)
+ggplot(data, aes(x=Height,
+          color=factor(Type))) +
+          geom_density(alpha=.5)
+ggplot(data, aes(x=Time,
+          color=factor(Type))) +
+          geom_density(alpha=.5)
+ggplot(data, aes(x=LegWidth,
+          color=factor(Type))) +
+          geom_density(alpha=.5)
+ggplot(data, aes(x=HandWidth,
+          color=factor(Type))) +
+          geom_density(alpha=.5)
+ggplot(data, aes(x=PreassureS,
+          color=factor(Type))) +
+          geom_density(alpha=.5)
+ggplot(data, aes(x=PressureD,
+          color=factor(Type))) +
+          geom_density(alpha=.5)
+ggplot(data, aes(x=Index,
+          color=factor(Type))) +
+          geom_density(alpha=.5)
+ggplot(data, aes(x=Ratio,
+          color=factor(Type))) +
+          geom_density(alpha=.5)
+```
